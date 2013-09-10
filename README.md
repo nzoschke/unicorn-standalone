@@ -1,6 +1,6 @@
 # Unicorn::Standalone
 
-TODO: Write a gem description
+Runs a native nginx / unicorn web server.
 
 ## Installation
 
@@ -18,7 +18,15 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+config.ru
+```
+run lambda { |env| [200, {'Content-Type'=>'text/plain'}, StringIO.new("Hello World!\n")] }
+```
+
+```bash
+$ bundle exec unicorn-standalone
+```
 
 ## Contributing
 
