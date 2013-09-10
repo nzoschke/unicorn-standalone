@@ -7,8 +7,8 @@ clean:
 	rm -rf $(ROOT)/vendor
 
 vendor/luajit: src
-	cd src/LuaJIT-2.0.2 													\
-	&& make PREFIX=$(ROOT)/vendor/luajit 					\
+	cd src/LuaJIT-2.0.2 																		\
+	&& make PREFIX=$(ROOT)/vendor/luajit 										\
 	&& make install PREFIX=$(ROOT)/vendor/luajit
 
 vendor/nginx: vendor/luajit
