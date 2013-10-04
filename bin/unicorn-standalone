@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+BASE = File.expand_path(File.join(File.dirname(__FILE__), "..", "/ext/nginx/vendor/nginx/"))
+
+exec File.join(BASE, "sbin", "nginx")

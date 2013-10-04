@@ -2,5 +2,4 @@ require "fileutils"
 
 task :default do
   sh 'make'
-  FileUtils.cp "vendor/nginx/sbin/nginx" "bin/unicorn-standalone-nginx"
 end
