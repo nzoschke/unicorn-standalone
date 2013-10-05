@@ -12,6 +12,7 @@ tmpdir = Dir.mktmpdir("unicorn-standalone")
 
 File.open("#{tmpdir}/nginx.conf", "w") do |f| 
   f.write <<-EOF
+error_log stderr;
 daemon off;
 worker_processes 4;
 
