@@ -58,7 +58,10 @@ end
 
 begin
   # Start nginx subprocess; wait for exit and exit main process (and unicorn thread)
-  BASE = File.expand_path(File.join(File.dirname(__FILE__), "..", "/ext/nginx/vendor/nginx/"))
+  FileUtils.mkdir_p("/tmp/logs")
+  FileUtils.touch("/tmp/logs/error.log")
+  FileUtils.touch("/tmp/logs/access.log")
+  BASE = File.expand_path(File.join(File.dirname(__FILE__), "..", "/ext/nginx/vendor/nginx/tmp"))
   pid = Process.spawn(File.join(BASE, "sbin", "nginx"), "-c", "#{tmpdir}/nginx.conf")
   Thread.new {
     Process.wait pid
