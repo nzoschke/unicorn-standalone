@@ -9,7 +9,7 @@ clean:
 vendor/nginx: src
 	cd src/nginx-1.4.1                                    \
 	&& ./configure                                        \
-	  --prefix=$(ROOT)/vendor/nginx                       \
+	  --prefix=/tmp                                       \
 	  --with-pcre=$(ROOT)/src/pcre-8.33                   \
 	&& make install
 
