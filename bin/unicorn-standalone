@@ -1,5 +1,72 @@
 #!/usr/bin/env ruby
+require "thread"
+require "unicorn/launcher"
+
+queue = Queue.new
+
+ENV["RACK_ENV"] ||= "development"
+rackup_opts = Unicorn::Configurator::RACKUP[:listeners]
+options = rackup_opts[:options]
+options[:listeners] = "/tmp/nginx.socket"
+
+app = Unicorn.builder(ARGV[0] || "config.ru", nil)
+
+thread = Unicorn::HttpServer.new(app, options).start
+
+conf = <<-EOF
+daemon off;
+#Heroku dynos have 4 cores.
+worker_processes 4;
+
+events {
+  accept_mutex on;
+  worker_connections 1024;
+}
+
+http {
+        gzip on;
+        gzip_comp_level 2;
+        gzip_min_length 512;
+
+  log_format l2met 'measure.nginx.service=$request_time request_id=$http_heroku_request_id';
+  access_log /tmp/nginx-access.log l2met;
+  error_log /tmp/nginx-error.log;
+
+  default_type application/octet-stream;
+  sendfile on;
+
+  #Must read the body in 5 seconds.
+  client_body_timeout 5;
+
+  upstream app_server {
+    server unix:/tmp/nginx.socket fail_timeout=0;
+  }
+
+  server {
+    listen #{ENV["PORT"] || 3000};
+    server_name _;
+    keepalive_timeout 5;
+
+    location / {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+      proxy_pass http://app_server;
+    }
+  }
+}
+EOF
+
+File.open("/tmp/nginx.conf", "w") { |f| f.write conf }
 
 BASE = File.expand_path(File.join(File.dirname(__FILE__), "..", "/ext/nginx/vendor/nginx/"))
+pid = Process.spawn(File.join(BASE, "sbin", "nginx"), "-c", "/tmp/nginx.conf")
 
-exec File.join(BASE, "sbin", "nginx")
+Thread.new {
+  Process.wait pid
+  exit(1) if queue.empty?
+}
+
+thread.join
+queue << true
+Process.kill(pid)
