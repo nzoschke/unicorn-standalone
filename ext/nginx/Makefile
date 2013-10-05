@@ -11,7 +11,7 @@ vendor/nginx: src
 	&& ./configure                                        \
 	  --prefix=/tmp                                       \
 	  --with-pcre=$(ROOT)/src/pcre-8.33                   \
-	&& make install
+	&& DESTDIR=$(ROOT)/vendor/nginx make install
 
 src:
 	mkdir -p $(ROOT)/src
